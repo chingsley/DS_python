@@ -426,6 +426,114 @@
 
 
 
+--WHERE <VALUE> IS NULL
+-- E.g: Retrieve all accounts that has not made any orders. Include the account name and it's sales rep
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT a.name AS account_name, s.name AS sales_rep, o.id AS order_id, o.total, o.total_amt_usd
+--FROM accounts a
+--LEFT JOIN orders o
+--	ON o.account_id = a.id
+--JOIN sales_reps s
+--	ON a.sales_rep_id = s.id
+--WHERE o.id IS NULL;
 
-		
+
+--WHERE <VALUE> IS NOT NULL
+-- E.g: Retrieve all accounts that has made any orders. Include the account name and it's sales rep
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT a.name AS account_name, s.name AS sales_rep, o.id AS order_id, o.total, o.total_amt_usd
+--FROM accounts a
+--LEFT JOIN orders o
+--	ON o.account_id = a.id
+--JOIN sales_reps s
+--	ON a.sales_rep_id = s.id
+--WHERE o.id IS NOT NULL;
+--
+	
+	
+--count the total number of orders made in December 2016
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT COUNT(*) AS order_count
+--FROM orders
+--WHERE occurred_at
+--	BETWEEN '2016-12-01' AND '2017-01-01';
+	
+	
+-- total up all sales of each paper type for comparison
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT SUM(standard_qty) AS standard,
+--		SUM(gloss_qty) AS gloss,
+--		SUM(poster_qty) AS poster
+--FROM orders;
+
+
+
+-- min and max
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT MIN(standard_qty) AS standard_min,
+--		MIN(gloss_qty) AS gloass_min,
+--		MIN(poster_qty) AS poster_min,
+--		MAX(standard_qty) AS standard_max,
+--		MAX(gloss_qty) AS gloss_max,
+--		MAX(poster_qty) AS poster_max,
+--		SUM(standard_qty) AS standard,
+--		SUM(gloss_qty) AS gloss,
+--		SUM(poster_qty) AS poster
+--FROM orders;
+
+
+
+-- AVG - note AVG does not treat NULL values as zero in the calculation. If you want to include null value in the count as denominator when calculatin average, you will have use total/count
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT AVG(standard_qty) AS standard_avg,
+--		AVG(gloss_qty) AS gloass_avg,
+--		AVG(poster_qty) AS poster_avg
+--FROM orders;
+
+
+
+-- GROUP BY
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(standard_qty) AS standard_sum,
+--		SUM(gloss_qty) AS gloass_sum,
+--		SUM(poster_qty) AS poster_sum
+--FROM orders
+--GROUP BY account_id
+--ORDER BY account_id;
+
+
+
+
+-- grouping by, count distinct
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT 	account_id,
+		count(DISTINCT channel) AS no_of_channels,
+		count(id) AS events
+FROM web_events
+GROUP BY account_id
+ORDER BY account_id;
+
+
+-- grouping by multiple columns
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT 	account_id,
+		channel,
+		count(id) AS events
+FROM web_events
+GROUP BY account_id, channel
+ORDER BY account_id, events DESC;
+	
+
+
+
+-- with 'DISTINCT' we can use the 'GROUP BY' clause without necessarily including any aggregations
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT 	account_id,
+		channel,
+		count(id) AS events
+FROM web_events
+GROUP BY account_id, channel
+ORDER BY account_id, events DESC;
+	
 
