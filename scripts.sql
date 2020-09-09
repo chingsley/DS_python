@@ -426,6 +426,262 @@
 
 
 
+--WHERE <VALUE> IS NULL
+-- E.g: Retrieve all accounts that has not made any orders. Include the account name and it's sales rep
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT a.name AS account_name, s.name AS sales_rep, o.id AS order_id, o.total, o.total_amt_usd
+--FROM accounts a
+--LEFT JOIN orders o
+--	ON o.account_id = a.id
+--JOIN sales_reps s
+--	ON a.sales_rep_id = s.id
+--WHERE o.id IS NULL;
 
-		
+
+--WHERE <VALUE> IS NOT NULL
+-- E.g: Retrieve all accounts that has made any orders. Include the account name and it's sales rep
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT a.name AS account_name, s.name AS sales_rep, o.id AS order_id, o.total, o.total_amt_usd
+--FROM accounts a
+--LEFT JOIN orders o
+--	ON o.account_id = a.id
+--JOIN sales_reps s
+--	ON a.sales_rep_id = s.id
+--WHERE o.id IS NOT NULL;
+--
+	
+	
+--count the total number of orders made in December 2016
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT COUNT(*) AS order_count
+--FROM orders
+--WHERE occurred_at
+--	BETWEEN '2016-12-01' AND '2017-01-01';
+	
+	
+-- total up all sales of each paper type for comparison
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT SUM(standard_qty) AS standard,
+--		SUM(gloss_qty) AS gloss,
+--		SUM(poster_qty) AS poster
+--FROM orders;
+
+
+
+-- min and max
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT MIN(standard_qty) AS standard_min,
+--		MIN(gloss_qty) AS gloass_min,
+--		MIN(poster_qty) AS poster_min,
+--		MAX(standard_qty) AS standard_max,
+--		MAX(gloss_qty) AS gloss_max,
+--		MAX(poster_qty) AS poster_max,
+--		SUM(standard_qty) AS standard,
+--		SUM(gloss_qty) AS gloss,
+--		SUM(poster_qty) AS poster
+--FROM orders;
+
+
+
+-- AVG - note AVG does not treat NULL values as zero in the calculation. If you want to include null value in the count as denominator when calculatin average, you will have use total/count
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT AVG(standard_qty) AS standard_avg,
+--		AVG(gloss_qty) AS gloass_avg,
+--		AVG(poster_qty) AS poster_avg
+--FROM orders;
+
+
+
+-- GROUP BY
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(standard_qty) AS standard_sum,
+--		SUM(gloss_qty) AS gloass_sum,
+--		SUM(poster_qty) AS poster_sum
+--FROM orders
+--GROUP BY account_id
+--ORDER BY account_id;
+
+
+
+
+-- grouping by, count distinct
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		count(DISTINCT channel) AS no_of_channels,
+--		count(id) AS events
+--FROM web_events
+--GROUP BY account_id
+--ORDER BY account_id;
+
+
+-- grouping by multiple columns
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		channel,
+--		count(id) AS events
+--FROM web_events
+--GROUP BY account_id, channel
+--ORDER BY account_id, events DESC;
+	
+
+
+
+-- with 'DISTINCT' we can use the 'GROUP BY' clause without necessarily including any aggregations
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	DISTINCT account_id,
+--		channel
+--FROM web_events
+--ORDER BY account_id;
+
+
+
+-- the sum of sales for each account, ordered in descending order
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(total_amt_usd) AS sum_total_amt_usd
+--FROM orders
+--GROUP BY account_id
+--ORDER BY sum_total_amt_usd DESC;
+
+
+
+-- the sum of sales for each account, ordered in descending order; filter where the sum is at least $250,000 (The query below will throw an error because the 'WHERE' clause does not allow aggregate functions in filtering. Solution is to use 'HAVING' instead)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(total_amt_usd) AS sum_total_amt_usd
+--FROM orders
+--WHERE SUM(total_amt_usd) >= 250000
+--GROUP BY account_id
+--ORDER BY sum_total_amt_usd DESC;
+
+
+
+
+-- the sum of sales for each account, ordered in descending order; filter where the sum is at least $250,000 (Note that 'HAVING' must come after 'GROUP BY' not before)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(total_amt_usd) AS sum_total_amt_usd
+--FROM orders
+--GROUP BY account_id
+--HAVING SUM(total_amt_usd) >= 250000
+--ORDER BY sum_total_amt_usd DESC;
+
+
+-- to identify the total sales in US dollars for accounts with over $250,000 in sales to better understand the proportion of revenues that come from these acccounts.    
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		SUM(total_amt_usd) AS sum_total_amt_usd
+--FROM orders
+--GROUP BY account_id
+--HAVING SUM(total_amt_usd) >= 250000
+--ORDER BY sum_total_amt_usd DESC;
+
+
+
+-- aggregating by date field. E.g Sum the quanities of standard paper by day   
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	DATE_TRUNC('day', occurred_at) AS day,
+--		SUM(standard_qty) AS sum_standard_qty_per_day
+--FROM orders
+--GROUP BY DATE_TRUNC('day', occurred_at)
+--ORDER BY DATE_TRUNC('day', occurred_at);
+
+
+
+-- to pull out a given part of the date; for e.g to know what day of the week partch_and_posey's website sees the most traffic you'll have to use DATE_PART - which allows you pull the part of the date you're interested in. But notice that regardless of year, a DATE_PART will provide the same month for events that happened in say April 2016 and April 2017, while a DATE_TRUNC will differentate such dates;
+
+-- To answer the question, on what day of the week are the most sales made?
+-- Note: 'dow' stands for 'day of week' it returns a value from 0 to 6, where 0 is sunday and 6 is saturday.
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT DATE_PART('dow', occurred_at) AS day_of_week,
+--		SUM(total) total_qty
+--FROM orders
+--GROUP BY day_of_week
+--ORDER BY total_qty DESC;
+
+
+
+-- generating derived columns. This can be achieved using 'arithmetic' or the 'CASE' statement
+
+-- EXAMPLE 1 (no 'ELSE' returns null where the condition if false)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT	id,
+--		account_id,
+--		occurred_at,
+--		channel,
+--		CASE WHEN channel = 'facebook' THEN 'yes' END AS is_facebook
+--FROM web_events
+--ORDER BY occurred_at;	
+
+
+
+-- EXAMPLE 2 (use 'ELSE' to return something else other than null when the condition if false)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT	id,
+--		account_id,
+--		occurred_at,
+--		channel,
+--		CASE WHEN channel = 'facebook' THEN 'yes' ELSE 'no' END AS is_facebook
+--FROM web_events
+--ORDER BY occurred_at;
+
+
+-- EXAMPLE 3 (using 'CASE' with multiple conditions, use OPERATORS such as OR, AND, LIKE, IN, etc)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT	id,
+--		account_id,
+--		occurred_at,
+--		channel,
+--		CASE WHEN channel = 'facebook' OR channel = 'direct' THEN 'yes' ELSE 'no' END AS is_facebook
+--FROM web_events
+--ORDER BY occurred_at;
+
+
+-- grouping by channels
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^----
+--SELECT	channel,
+--		COUNT(id)
+--FROM web_events
+--GROUP BY channel;
+
+
+-- grouping by channel for special comparison. E.G To compare facebook as a marketing channel against all other channels. You know facebook is a great channel for your businees, but is better than all the rest combined?. Write a query to determine that.
+-- Inorder to answer this question, you'll need to create a derived column.
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT	CASE WHEN channel = 'facebook' THEN 'facebook' ELSE 'others' END AS channel_type,
+--		COUNT(id)
+--FROM web_events
+--GROUP BY channel_type;
+
+
+
+-- to classify orders into general groups based on order size for inventory planning
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	account_id,
+--		occurred_at,
+--		total,
+--		CASE WHEN total > 500 THEN 'Over 500'
+--			 WHEN total > 300 AND total <= 500 THEN '301 - 500'
+--			 WHEN total > 100 AND total <= 300 THEN '101 - 300'
+--			 ELSE '100 or under' END AS total_group
+--FROM orders;
+
+
+
+-- to classify orders into general groups based on order size and count up all the orders in each group for inventory planning
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT 	CASE WHEN total > 500 THEN 'Over 500'
+			 WHEN total > 300 AND total <= 500 THEN '301 - 500'
+			 WHEN total > 100 AND total <= 300 THEN '101 - 300'
+			 ELSE '100 or under' END AS total_group,
+		count(*) AS order_count_in_grp	
+FROM orders
+GROUP BY total_group;
+
+
+
+
+
+
 
