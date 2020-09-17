@@ -468,6 +468,28 @@
 
 
 
+-- Find the total dollar amount of sales using the total_amt_usd in the orders table.
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT SUM(total_amt_usd) AS total_dollar_sales
+--FROM orders;
+
+
+--  Find the total amount spent on standard_amt_usd and gloss_amt_usd paper for each order in the orders table. This should give a dollar amount for each order in the table. (ie. Find the total amount for each individual order that was spent on standard and gloss paper in the orders table.)
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	id,
+--		standard_amt_usd + gloss_amt_usd AS total_standard_gloss
+--FROM orders;
+
+
+--   Find the standard_amt_usd per unit of standard_qty paper. Your solution should use both an aggregation and a mathematical operator. (Though the price/standard_qty paper varies from one order to the next, for this exercise, compute the ratio across all of the sales made in the orders table
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT 	SUM(standard_qty) AS total_std_qty,
+--		SUM(standard_amt_usd) AS total_std_amt,
+--		SUM(standard_amt_usd) / SUM(standard_qty) AS std_price_per_unit_qty
+--FROM orders;
+
+
+
 -- min and max
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 --SELECT MIN(standard_qty) AS standard_min,
@@ -671,13 +693,13 @@
 
 -- to classify orders into general groups based on order size and count up all the orders in each group for inventory planning
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
-SELECT 	CASE WHEN total > 500 THEN 'Over 500'
-			 WHEN total > 300 AND total <= 500 THEN '301 - 500'
-			 WHEN total > 100 AND total <= 300 THEN '101 - 300'
-			 ELSE '100 or under' END AS total_group,
-		count(*) AS order_count_in_grp	
-FROM orders
-GROUP BY total_group;
+--SELECT 	CASE WHEN total > 500 THEN 'Over 500'
+--			 WHEN total > 300 AND total <= 500 THEN '301 - 500'
+--			 WHEN total > 100 AND total <= 300 THEN '101 - 300'
+--			 ELSE '100 or under' END AS total_group,
+--		count(*) AS order_count_in_grp	
+--FROM orders
+--GROUP BY total_group;
 
 
 
