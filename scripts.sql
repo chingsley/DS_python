@@ -832,6 +832,10 @@ SELECT channel, COUNT(channel) no_of_times
 FROM web_events
 GROUP BY channel;
 
+-- OR --
+SELECT w.channel, COUNT(*)
+FROM web_events w
+GROUP BY w.channel;
 
 
 --  5.  Who was the primary contact associated with the earliest web_event?
@@ -863,6 +867,14 @@ JOIN region r
 	ON s.region_id = r.id
 GROUP BY region
 ORDER BY number_of_sales_rep;
+
+-- OR --
+SELECT r.name, COUNT(*) num_reps
+FROM region r
+JOIN sales_reps s
+ON r.id = s.region_id
+GROUP BY r.name
+ORDER BY num_reps;
 
 
 
