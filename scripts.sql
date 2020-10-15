@@ -1290,13 +1290,72 @@ GROUP BY day_of_week
 ORDER BY total_qty DESC;
 
 
--- Find the sales in terms of total dollars for all orders in each year , ordered from greatest to least. Do you notice any trends in the yearly sales totals?
+--==============
+--	QUIZ
+--==============
+--1. Find the sales in terms of total dollars for all orders in each year , ordered from greatest to least. Do you notice any trends in the yearly sales totals?
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
-SELECT DATE_TRUNC('year', occurred_at) "year", SUM(total_amt_usd) total_dollar_amt
+SELECT DATE_TRUNC('year', occurred_at) "order_year", SUM(total_amt_usd) total_spent
 FROM orders
 GROUP BY DATE_TRUNC('year', occurred_at)
-ORDER BY total_dollar_amt DESC;
+ORDER BY total_spent DESC;
 
+-- OR --
+SELECT DATE_PART('year', occurred_at) "order_year", SUM(total_amt_usd) total_spent
+FROM orders
+GROUP BY DATE_PART('year', occurred_at)
+ORDER BY total_spent DESC;
+
+
+
+--2. Which month did Parch & Posey have the greatest sales in terms of total dollars? Are all months evenly represented by the dataset?
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT DATE_PART('month', occurred_at) order_month, SUM(total_amt_usd) total_spent
+FROM orders
+WHERE occurred_at BETWEEN '2014-01-01' AND '2017-01-01'
+GROUP BY 1
+ORDER BY 2 DESC;
+---------------------------------------------------------------------
+-- In order for this to be 'fair', we should remove the sales from 2013 and 2017. For the same reasons as discussed above.
+---------------------------------------------------------------------
+
+
+--3. Which year did Parch & Posey have the greatest sales in terms of total number of orders? Are all years evenly represented by the dataset?--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT DATE_PART('year', occurred_at) order_year, SUM(total_amt_usd) total_spent
+FROM orders
+GROUP BY 1
+ORDER BY 2 DESC;
+---------------------------------------------------------------------
+-- Again, 2016 by far has the most amount of orders, but again 2013 and 2017 are not evenly represented to the other years in the dataset.
+---------------------------------------------------------------------
+
+
+--4. Which month did Parch & Posey have the greatest sales in terms of total number of orders? Are all months evenly represented by the dataset?^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT DATE_PART('month', occurred_at) order_month, COUNT(*) total_sales_count
+FROM orders
+WHERE occurred_at BETWEEN '2014-01-01' AND '2017-01-01'
+GROUP BY 1
+ORDER BY 2 DESC;
+---------------------------------------------------------------------
+-- December still has the most sales, but interestingly, November has the second most sales (but not the most dollar sales. To make a fair comparison from one month to another 2017 and 2013 data were removed.
+---------------------------------------------------------------------
+
+
+
+
+--5. In which month of which year did Walmart spend the most on gloss paper in terms of dollars?
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT a.name account_name, DATE_TRUNC('month', o.occurred_at) order_month, SUM(o.gloss_amt_usd) total_spent_on_gloss_paper
+FROM orders o
+JOIN accounts a
+	ON o.account_id = a.id
+WHERE a.name = 'Walmart'
+GROUP BY 1, 2
+ORDER BY 3 DESC
+LIMIT 1;
+---------------------------------------------------------------------
+-- May 2016 was when Walmart spent the most on gloss paper.
+---------------------------------------------------------------------
 
 
 
