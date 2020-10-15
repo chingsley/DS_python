@@ -4,7 +4,7 @@
 -- SELECT "id", "occurred_at", "total_amt_usd"
 -- FROM "orders"
 -- ORDER BY "occurred_at"
--- LIMIT 15;
+-- LIMIT 10;
 
 
 -- Write a query to return the top 5 orders in terms of largest total_amt_usd . Include the id , account_id , and total_amt_usd.
@@ -213,9 +213,22 @@
 --			AND primary_poc NOT LIKE '%eana%');
 
 
--------------------------------------------------------------------------
--- JOINS --
--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+--===========================================================================
+--						            JOINS
+--===========================================================================
 
 --   select all from orders and accounts in one table
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
@@ -415,6 +428,18 @@ WHERE a.id = '1001';
 
 
 
+
+
+
+
+
+
+
+
+-- ==============================================================
+--							BETWEEN
+--===============================================================
+
 --8. Find all the orders that occurred in 2015 . Your final table should have 4 columns: occurred_at, account name, order total, and order total_amt_usd.
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 --SELECT o.occurred_at, a.name, o.total, o.total_amt_usd
@@ -425,7 +450,27 @@ WHERE a.id = '1001';
 --ORDER BY o.occurred_at;
 
 
+--count the total number of orders made in December 2016
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+--SELECT COUNT(*) AS order_count
+--FROM orders
+--WHERE occurred_at
+--	BETWEEN '2016-12-01' AND '2017-01-01';
 
+
+
+
+
+
+
+
+
+
+
+
+-- ==============================================================
+--							NULL
+--===============================================================
 --WHERE <VALUE> IS NULL
 -- E.g: Retrieve all accounts that has not made any orders. Include the account name and it's sales rep
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
@@ -451,14 +496,20 @@ WHERE a.id = '1001';
 --
 	
 	
---count the total number of orders made in December 2016
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT COUNT(*) AS order_count
---FROM orders
---WHERE occurred_at
---	BETWEEN '2016-12-01' AND '2017-01-01';
+
 	
 	
+
+
+
+
+
+
+
+-- ==============================================================
+--							SUM
+--===============================================================
+
 -- total up all sales of each paper type for comparison
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 --SELECT SUM(standard_qty) AS standard,
@@ -490,7 +541,19 @@ WHERE a.id = '1001';
 
 
 
--- min and max
+
+
+
+
+
+
+
+
+
+-- ==============================================================
+--							MIN MAX
+--===============================================================
+-- example Usage
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 --SELECT MIN(standard_qty) AS standard_min,
 --		MIN(gloss_qty) AS gloass_min,
@@ -504,23 +567,53 @@ WHERE a.id = '1001';
 --FROM orders;
 
 
-
--- AVG - note AVG does not treat NULL values as zero in the calculation. If you want to include null value in the count as denominator when calculatin average, you will have use total/count
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT AVG(standard_qty) AS standard_avg,
---		AVG(gloss_qty) AS gloass_avg,
---		AVG(poster_qty) AS poster_avg
+-- When was the earliest order ever placed? You only need to return the date:
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+-- METHOD 1 - using aggregation function (MIN)
+----------------------------------------------------
+--SELECT MIN(occurred_at) AS occurred_at
 --FROM orders;
+
+-- METHOD 2 - without using aggregation function
+----------------------------------------------------
+--SELECT 	occurred_at
+--FROM orders
+--ORDER BY occurred_at
+--LIMIT 1;
+
+
+-- When did the most recent (latest) web_event occur?:
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+
+---- -- METHOD 1 - using aggregation function (MAX)
+----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--SELECT MAX(occurred_at) AS occurred_at
+--FROM web_events;
+--
+---- -- METHOD 2 - without using aggregation function
+----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--SELECT 	occurred_at
+--FROM web_events
+--ORDER BY occurred_at DESC
+--LIMIT 1;
+
+
+
+
+
+
+
+
 
 
 
 
 
 -- ==============================================================
---							GROUP BY
+--							GROUP BY / DISTINCT
 --===============================================================
 
--- GROUP BY
+-- Example Usage
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 --SELECT 	account_id,
 --		SUM(standard_qty) AS standard_sum,
@@ -529,7 +622,6 @@ WHERE a.id = '1001';
 --FROM orders
 --GROUP BY account_id
 --ORDER BY account_id;
-
 
 
 
@@ -607,29 +699,16 @@ WHERE a.id = '1001';
 
 
 
--- aggregating by date field. E.g Sum the quanities of standard paper by day   
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT 	DATE_TRUNC('day', occurred_at) AS day,
---		SUM(standard_qty) AS sum_standard_qty_per_day
---FROM orders
---GROUP BY DATE_TRUNC('day', occurred_at)
---ORDER BY DATE_TRUNC('day', occurred_at);
 
 
 
--- to pull out a given part of the date; for e.g to know what day of the week partch_and_posey's website sees the most traffic you'll have to use DATE_PART - which allows you pull the part of the date you're interested in. But notice that regardless of year, a DATE_PART will provide the same month for events that happened in say April 2016 and April 2017, while a DATE_TRUNC will differentate such dates;
-
--- To answer the question, on what day of the week are the most sales made?
--- Note: 'dow' stands for 'day of week' it returns a value from 0 to 6, where 0 is sunday and 6 is saturday.
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT DATE_PART('dow', occurred_at) AS day_of_week,
---		SUM(total) total_qty
---FROM orders
---GROUP BY day_of_week
---ORDER BY total_qty DESC;
 
 
 
+
+--===========================================================================
+--						            CASE
+--===========================================================================
 -- generating derived columns. This can be achieved using 'arithmetic' or the 'CASE' statement
 
 -- EXAMPLE 1 (no 'ELSE' returns null where the condition if false)
@@ -709,64 +788,50 @@ WHERE a.id = '1001';
 
 
 
--- When was the earliest order ever placed? You only need to return the date:
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
-
----- -- METHOD 1 - using aggregation function (MIN)
-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
---SELECT MIN(occurred_at) AS occurred_at
---FROM orders;
-
----- -- METHOD 2 - without using aggregation function
-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
---SELECT 	occurred_at
---FROM orders
---ORDER BY occurred_at
---LIMIT 1;
 
 
--- When did the most recent (latest) web_event occur?:
---^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 
----- -- METHOD 1 - using aggregation function (MAX)
-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
---SELECT MAX(occurred_at) AS occurred_at
---FROM web_events;
---
----- -- METHOD 2 - without using aggregation function
-----^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
---SELECT 	occurred_at
---FROM web_events
---ORDER BY occurred_at DESC
---LIMIT 1;
+--===========================================================================
+--						       AVERAGE / MEDIAN
+--===========================================================================
+-- AVG - note AVG does not treat NULL values as zero in the calculation. If you want to include null value in the count as denominator when calculatin average, you will have use total/count
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT AVG(standard_qty) AS standard_avg,
+		AVG(gloss_qty) AS gloass_avg,
+		AVG(poster_qty) AS poster_avg
+FROM orders;
 
 
 
 --  Find the mean (AVERAGE) amount spent per order on each paper type, as well as the mean amount of each paper type purchased per order. Your final answer should have 6 values - one for each paper type for the average number of sales, as well as the average amount.
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT AVG(standard_qty) mean_standard, AVG(gloss_qty) mean_gloss, AVG(poster_qty) mean_poster,
---		AVG(standard_amt_usd) mean_standard_amt, AVG(gloss_amt_usd) mean_gloss_amt,
---		AVG(poster_amt_usd) mean_poster_amt 
---FROM orders;
+SELECT AVG(standard_qty) mean_standard, AVG(gloss_qty) mean_gloss, AVG(poster_qty) mean_poster,
+		AVG(standard_amt_usd) mean_standard_amt, AVG(gloss_amt_usd) mean_gloss_amt,
+		AVG(poster_amt_usd) mean_poster_amt 
+FROM orders;
 
 
 
 --  what is the MEDIAN total_usd spent on all orders?
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
---SELECT *
---FROM   (SELECT total_amt_usd 
---		FROM orders
---		ORDER BY total_amt_usd
---		LIMIT 3457) AS Table1
---ORDER BY total_amt_usd DESC
---LIMIT 2;
---
+SELECT *
+FROM   (SELECT total_amt_usd 
+		FROM orders
+		ORDER BY total_amt_usd
+		LIMIT 3457) AS Table1
+ORDER BY total_amt_usd DESC
+LIMIT 2;
+
 ---- EXPLANATION FOR THE MEDIAN SOLUTION ABOVE
 ----Since there are 6912 orders - we want the average of the 3457 and 3456 order amounts when
 ----ordered. This is the average of 2483.16 and 2482.55. This gives the median of 2482.855. This
 ----obviously isn't an ideal way to compute. If we obtain new orders, we would have to change the
 ----limit. SQL didn't even calculate the median for us. The above used a SUBQUERY, but you could
 ----use any method to nd the two necessary values, and then you just need the average of them.
+
+
+
+
 
 
 
@@ -804,7 +869,6 @@ JOIN accounts a
 	ON o.account_id = a.id
 GROUP BY a.name
 ORDER BY a.name;
-
 
 
 
@@ -879,6 +943,16 @@ ORDER BY num_reps;
 
 
 
+
+
+
+
+
+
+
+
+
+
 -- ============================================================================
 -- 			   GROUP BY (PART II) => GROUPING BY MULTIPLE COLUMNS
 -- ============================================================================
@@ -948,11 +1022,20 @@ ORDER BY count DESC;
 
 
 
+
+
+
+
+
+
+
 -- ============================================================================
 -- 			                         DISTICT
+-- ============================================================================
 -- NOTE: DISTINCT is an Aggregation method
 -- (It’s worth noting that using DISTINCT, particularly in aggregations, can slow your queries down quite abit.)
--- ============================================================================
+----------------------------------------------------------------------------
+
 
 
 --  1. Use DISTINCT to test if there are any accounts associated with more than one region..
@@ -973,8 +1056,6 @@ FROM accounts;
 	
 
 
-
-
 --  2. Have any sales reps worked on more than one account?.
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
 ---------------------------------------------------------------------
@@ -993,10 +1074,22 @@ FROM sales_reps;
 
 
 
+
+
+
+
+
+
+
+
+
+
 -- ============================================================================
 -- 			                         HAVING
---  Essentially, any time you want to perform a WHERE on an element of your query that was created by an aggregate, you need to use HAVING instead.
 -- ============================================================================
+--  Essentially, any time you want to perform a WHERE on an element of your query that was created by an aggregate, you need to use HAVING instead.
+------------------------------------------------------------------------------
+
 
 --  1. How many of the sales reps have more than 5 accounts that they manage?
 --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
@@ -1168,6 +1261,41 @@ LIMIT 1;
 
 
 
+
+
+
+--===========================================================================
+--						        DATE Functions
+--===========================================================================
+
+-- aggregating by date field. E.g Sum the quanities of standard paper by day   
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT 	DATE_TRUNC('day', occurred_at) AS day,
+		SUM(standard_qty) AS sum_standard_qty_per_day
+FROM orders
+GROUP BY DATE_TRUNC('day', occurred_at)
+ORDER BY DATE_TRUNC('day', occurred_at);
+
+
+
+-- to pull out a given part of the date; for e.g to know what day of the week partch_and_posey's website sees the most traffic you'll have to use DATE_PART - which allows you pull the part of the date you're interested in. But notice that regardless of year, a DATE_PART will provide the same month for events that happened in say April 2016 and April 2017, while a DATE_TRUNC will differentiate such dates;
+
+-- To answer the question, on what day of the week are the most sales made?
+-- Note: 'dow' stands for 'day of week' it returns a value from 0 to 6, where 0 is sunday and 6 is saturday.
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT DATE_PART('dow', occurred_at) AS day_of_week,
+		SUM(total) total_qty
+FROM orders
+GROUP BY day_of_week
+ORDER BY total_qty DESC;
+
+
+-- Find the sales in terms of total dollars for all orders in each year , ordered from greatest to least. Do you notice any trends in the yearly sales totals?
+--^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^--
+SELECT DATE_TRUNC('year', occurred_at) "year", SUM(total_amt_usd) total_dollar_amt
+FROM orders
+GROUP BY DATE_TRUNC('year', occurred_at)
+ORDER BY total_dollar_amt DESC;
 
 
 
